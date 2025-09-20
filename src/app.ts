@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import webRoutes from './routes/web';
+import getConnection from './config/database';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -10,7 +11,7 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//congfig view engine
+//config view engine
 app.set('view engine', 'ejs');
 app.set('views', 'src/views');
 
@@ -19,6 +20,8 @@ app.use(express.static('public'));
 
 //config routes
 webRoutes(app);
+
+getConnection();
 
 app.listen(8080, () => {
     console.log(`Server is running on port: ${PORT}`);
