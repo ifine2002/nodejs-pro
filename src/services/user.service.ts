@@ -1,4 +1,4 @@
-import getConnection from "../config/database";
+import getConnection from "config/database";
 
 const handleCreateUser = async (name: string, email: string, address: string) => {
     //logic to create user
@@ -14,8 +14,6 @@ const handleCreateUser = async (name: string, email: string, address: string) =>
         console.log(err);
         return [];
     }
-    //return some result
-    console.log('>>> insert a new user');
 }
 
 const getAllUsers = async () => {
@@ -34,4 +32,20 @@ const getAllUsers = async () => {
     }
 }
 
-export { handleCreateUser, getAllUsers };
+const handleDeleteUser = async (id: string) => {
+    //logic to delete user
+    const connection = await getConnection();
+    // execute will internally call prepare and query
+    try {
+        const sql = 'DELETE FROM `users` WHERE `id` = ?';
+        const values = [id];
+
+        const [result, fields] = await connection.execute(sql, values);
+        return result;
+    } catch (err) {
+        console.log(err);
+        return [];
+    }
+}
+
+export { handleCreateUser, getAllUsers, handleDeleteUser };
