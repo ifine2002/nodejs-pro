@@ -5,9 +5,11 @@ const handleCreateUser = async (name: string, email: string, address: string) =>
     //logic to create user
     const user = await prisma.user.create({
         data: {
-            name: name,
-            email: email,
-            address: address
+            fullName: name,
+            username: email,
+            address: address,
+            password: "",
+            accountType: ""
         },
     })
 }
@@ -44,8 +46,8 @@ const updateUserById = async (id: string, name: string, email: string, address: 
             id: +id
         },
         data: {
-            name: name,
-            email: email,
+            fullName: name,
+            username: email,
             address: address
         }
     })
