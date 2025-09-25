@@ -2,11 +2,15 @@ import express, { Express } from 'express';
 import { getCreateUserPage, getHomePage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser } from 'controllers/user.controller';
 import { getAdminOrderPage, getAdminProductPage, getAdminUserPage, getDashboardPage } from 'controllers/admin/dashboard.controller';
 import fileUploadMiddleware from 'src/middleware/multer';
+import { getProductDetail } from 'controllers/client/product.controller';
+import { getCreateProductPage, postCreateProduct } from 'controllers/admin/product.controller';
 
 const router = express.Router();
 
 const webRoutes = (app: Express) => {
+    //client routes
     router.get('/', getHomePage);
+    router.get('/product/:id', getProductDetail);
 
     //admin routes
     router.get('/admin', getDashboardPage);
@@ -18,6 +22,9 @@ const webRoutes = (app: Express) => {
     router.post('/admin/update-user/:id', fileUploadMiddleware("avatar"), postUpdateUser) //server is stupid, it cannot handle POST method with form-data -> reset server (restart pc)
 
     router.get('/admin/product', getAdminProductPage);
+    router.get('/admin/create-product', getCreateProductPage);
+    router.post('/admin/create-product', fileUploadMiddleware("image", "images/product"), postCreateProduct);
+
     router.get('/admin/order', getAdminOrderPage);
 
     app.use('/', router);
