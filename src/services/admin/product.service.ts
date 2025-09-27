@@ -64,4 +64,13 @@ const getProductById = async (id: string) => {
     })
 }
 
-export { createProduct, getAllProduct, getProductById, updateProduct }
+const handleDeleteProduct = async (id: string) => {
+    //logic to delete user
+    await prisma.product.delete({
+        where: {
+            id: +id
+        }
+    })
+}
+
+export { createProduct, getAllProduct, getProductById, updateProduct, handleDeleteProduct }
