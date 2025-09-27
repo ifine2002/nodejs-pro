@@ -10,7 +10,7 @@ const hashPassword = async (plainText: string) => {
 
 const handleCreateUser = async (fullName: string, email: string, address: string, phone: string, avatar: string | null, role: string) => {
     //logic to create user
-    const defaultPassword = await bcrypt.hash("123456", saltRounds);
+    const defaultPassword = await hashPassword("123456");
     const user = await prisma.user.create({
         data: {
             fullName: fullName,
