@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Dự án laptopshop" />
+    <title>View Product</title>
+    <link href="/admin/css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            const avatarFile = $("#avatarFile");
+            avatarFile.change(function (e) {
+                const imgURL = URL.createObjectURL(e.target.files[0]);
+                $("#avatarPreview").attr("src", imgURL);
+                $("#avatarPreview").css({ "display": "block" });
+            });
+        });
+    </script>
+
+</head>
+
+<body class="sb-nav-fixed">
+    <%- include('../layout/header') -%>
+        <div id="layoutSidenav">
+            <%- include('../layout/sidenav') -%>
+                <div id="layoutSidenav_content">
+                    <main>
+                        <div class="container-fluid px-4">
+                            <h1 class="mt-4">Manage Products</h1>
+                            <ol class="breadcrumb mb-4">
+                                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                                <li class="breadcrumb-item active"><a href="/admin/product">Product</a></li>
+                            </ol>
+                            <div class="row">
+                                <div class="col-6 mx-auto">
+                                    <h3 style="padding: 10px 0;">View detail a product id: <%= productId %>
+                                    </h3>
+                                    <form action="/admin/update-product/<%= productId %>" method="POST"
+                                        enctype="multipart/form-data">
+                                        <!-- input ẩn -->
+                                        <input type="hidden" name="currentImage" value="<%=
+                                            (oldData && oldData.image !== undefined && oldData.image !== null) ? oldData.image :
+                                            (product && product.image ? product.image : '')
+                                        %>">
+                                        <div class="row">
+                                            <div class="col-9 mb-3">
+                                                <label class="form-label">Name: </label>
+                                                <input type="text" name="name"
+                                                    value="<%= oldData.name !== undefined && oldData.name !== null ? oldData.name : product.name %>"
+                                                    class="form-control <%= errors.name ? 'is-invalid' : '' %>">
+                                                <span class="text-danger <%= errors.name ? '' : 'd-none' %>">
+                                                    <%= errors.name %>
+                                                </span>
+                                            </div>
+                                            <div class="col-3 mb-3">
+                                                <label class="form-label">Price: </label>
+                                                <input type="number" name="price"
+                                                    value="<%= oldData.price !== undefined && oldData.price !== null ? oldData.price : product.price %>"
+                                                    class="form-control <%= errors.price ? 'is-invalid' : '' %>">
+                                                <span class="text-danger <%= errors.price ? '' : 'd-none' %>">
+                                                    <%= errors.price %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Detail Description: </label>
+                                            <textarea class="form-control <%= errors.detailDesc ? 'is-invalid' : '' %>"
+                                                name="detailDesc"
+                                                rows="3"><%= oldData.detailDesc !== undefined && oldData.detailDesc !== null ? oldData.detailDesc : product.detailDesc %></textarea>
+                                            <span class="text-danger <%= errors.detailDesc ? '' : 'd-none' %>">
+                                                <%= errors.detailDesc %>
+                                            </span>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-9 mb-3">
+                                                <label class="form-label">Short Description: </label>
+                                                <input type="text" name="shortDesc"
+                                                    value="<%= oldData.shortDesc !== undefined && oldData.shortDesc !== null ? oldData.shortDesc : product.shortDesc %>"
+                                                    class="form-control <%= errors.shortDesc ? 'is-invalid' : '' %>">
+                                                <span class="text-danger <%= errors.shortDesc ? '' : 'd-none' %>">
+                                                    <%= errors.shortDesc %>
+                                                </span>
+                                            </div>
+                                            <div class="col-3 mb-3">
+                                                <label class="form-label">Quantity: </label>
+                                                <input type="number" name="quantity"
+                                                    value="<%= oldData.quantity !== undefined && oldData.quantity !== null ? oldData.quantity : product.quantity %>"
+                                                    class="form-control <%= errors.quantity ? 'is-invalid' : '' %>">
+                                                <span class="text-danger <%= errors.quantity ? '' : 'd-none' %>">
+                                                    <%= errors.quantity %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="mb-3 col-6">
+                                                <label class="form-label">Factory</label>
+                                                <select name="factory" class="form-select">
+                                                    <% if (oldData.factory) { %>
+                                                        <% factoryOptions.forEach((factory,index)=> { %>
+                                                            <option value="<%=factory.value %>"
+                                                                <%=factory.value===oldData.factory ? 'selected' : '' %>
+                                                                >
+                                                                <%- factory.name %>
+                                                            </option>
+                                                            <%})%>
+                                                                <% } else { %>
+                                                                    <% factoryOptions.forEach((factory,index)=> { %>
+                                                                        <option value="<%=factory.value %>"
+                                                                            <%=factory.value===product.factory
+                                                                            ? 'selected' : '' %>
+                                                                            >
+                                                                            <%- factory.name %>
+                                                                        </option>
+                                                                        <%})%>
+                                                                            <% } %>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3 col-6">
+                                                <label class="form-label">Target</label>
+                                                <select name="target" class="form-select">
+                                                    <% if (oldData.target) { %>
+                                                        <% targetOptions.forEach((target,index)=> { %>
+                                                            <option value="<%=target.value %>"
+                                                                <%=target.value===oldData.target ? 'selected' : '' %>
+                                                                >
+                                                                <%- target.name %>
+                                                            </option>
+                                                            <%})%>
+                                                                <% } else { %>
+                                                                    <% targetOptions.forEach((target,index)=> { %>
+                                                                        <option value="<%=target.value %>"
+                                                                            <%=target.value===product.target
+                                                                            ? 'selected' : '' %>
+                                                                            >
+                                                                            <%- target.name %>
+                                                                        </option>
+                                                                        <%})%>
+                                                                            <% } %>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="formFile" class="form-label">Image</label>
+                                            <input class="form-control" name="image" type="file" id="avatarFile"
+                                                accept=".png, .jpg, .jpeg">
+                                        </div>
+
+                                        <!-- Hiển thị ảnh hiện tại với logic được cập nhật -->
+                                        <% let currentImageToShow='' ; if (oldData && oldData.image !==undefined &&
+                                            oldData.image !==null) { currentImageToShow=oldData.image; } else if
+                                            (product && product.image) { currentImageToShow=product.image; } %>
+
+                                            <% if (currentImageToShow) { %>
+                                                <div class="mb-3">
+                                                    <label class="form-label text-muted">Ảnh hiện tại:</label>
+                                                    <img style="max-height: 250px; display: block; border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+                                                        alt="current image"
+                                                        src="/images/product/<%= currentImageToShow %>"
+                                                        id="avatarPreview" />
+                                                </div>
+                                                <% } else { %>
+                                                    <!-- Preview cho ảnh mới được chọn -->
+                                                    <div class="mb-3">
+                                                        <img style="max-height: 250px; display: none; border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+                                                            alt="new image preview" id="avatarPreview" />
+                                                    </div>
+                                                    <% } %>
+                                                        <div class="mb-3">
+                                                            <button type="submit"
+                                                                class="btn btn-warning">Update</button>
+                                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                    <%- include('../layout/footer') -%>
+                </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+        <script src="/admin/js/scripts.js"></script>
+</body>
+
+</html>
