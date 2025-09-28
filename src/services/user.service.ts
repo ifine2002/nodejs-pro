@@ -8,6 +8,10 @@ const hashPassword = async (plainText: string) => {
     return await bcrypt.hash(plainText, saltRounds);
 }
 
+const comparePassword = async (plainText: string, hashPassword: string) => {
+    return await bcrypt.compare(plainText, hashPassword);
+}
+
 const handleCreateUser = async (fullName: string, email: string, address: string, phone: string, avatar: string | null, role: string) => {
     //logic to create user
     const defaultPassword = await hashPassword("123456");
@@ -72,4 +76,4 @@ const updateUserById = async (id: string, fullName: string, phone: string, addre
     })
 }
 
-export { handleCreateUser, getAllUsers, handleDeleteUser, getUserById, updateUserById, getAllRoles, hashPassword };
+export { handleCreateUser, getAllUsers, handleDeleteUser, getUserById, updateUserById, getAllRoles, hashPassword, comparePassword };

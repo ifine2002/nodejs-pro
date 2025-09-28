@@ -42,7 +42,7 @@
                                         </div>
                                         <div class="form-floating mb-3">
                                             <input class="form-control <%= errors.email ? 'is-invalid' : '' %>"
-                                                id="inputEmail" type="text" name="email" placeholder="name@example.com"
+                                                id="inputEmail" type="email" name="email" placeholder="name@example.com"
                                                 value="<%= oldData.email %>" />
                                             <span class="text-danger <%= errors.email ? '' : 'd-none' %>">
                                                 <%= errors.email %>
