@@ -1,6 +1,7 @@
 import initDatabase from 'config/seed';
 import 'dotenv/config';
 import express from 'express';
+import session from 'express-session';
 import passport from 'passport';
 import webRoutes from 'routes/web';
 import configPassportLocal from 'src/middleware/passport.local';
@@ -20,8 +21,16 @@ app.set('views', 'src/views');
 //config static files: images/css/js
 app.use(express.static('public'));
 
+//config session
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}))
+
 //config passport
 app.use(passport.initialize())
+app.use(passport.authenticate("session"));
 configPassportLocal();
 
 //config routes
