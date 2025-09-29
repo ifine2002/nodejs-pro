@@ -1,3 +1,5 @@
+/// <reference path="./type/index.d.ts" />
+
 import initDatabase from 'config/seed';
 import 'dotenv/config';
 import express from 'express';
@@ -46,6 +48,12 @@ app.use(passport.initialize())
 app.use(passport.authenticate("session"));
 configPassportLocal();
 
+//config global
+app.use((req, res, next) => {
+    res.locals.user = req.user || null; // Pass user object to all views
+    next();
+});
+
 //config routes
 webRoutes(app);
 
@@ -53,7 +61,7 @@ initDatabase();
 
 //handle 404 not found
 app.use((req, res) => {
-    res.render('client/handle/notfound');
+    res.render('status/404');
 })
 
 app.listen(8080, () => {
