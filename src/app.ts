@@ -5,6 +5,8 @@ import session from 'express-session';
 import passport from 'passport';
 import webRoutes from 'routes/web';
 import configPassportLocal from 'src/middleware/passport.local';
+const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
+const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -23,9 +25,20 @@ app.use(express.static('public'));
 
 //config session
 app.use(session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true
+    cookie: {
+        maxAge: 7 * 24 * 60 * 60 * 1000 // ms
+    },
+    secret: 'a santa at nasa',
+    resave: true,
+    saveUninitialized: true,
+    store: new PrismaSessionStore(
+        new PrismaClient(),
+        {
+            checkPeriod: 1 * 24 * 60 * 60 * 1000,  //ms
+            dbRecordIdIsSessionId: true,
+            dbRecordIdFunction: undefined,
+        }
+    )
 }))
 
 //config passport
