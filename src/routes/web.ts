@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import { getCreateUserPage, getHomePage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser } from 'controllers/user.controller';
 import { getAdminOrderPage, getAdminProductPage, getAdminUserPage, getDashboardPage } from 'controllers/admin/dashboard.controller';
 import fileUploadMiddleware from 'src/middleware/multer';
-import { getProductDetail } from 'controllers/client/product.controller';
+import { getProductDetail, postAddProductToCart } from 'controllers/client/product.controller';
 import { getCreateProductPage, getViewProduct, postCreateProduct, postDeleteProduct, postUpdateProduct } from 'controllers/admin/product.controller';
 import { getLoginPage, getRegisterPage, getSuccessRedirectPage, postLogout, postRegister } from 'controllers/client/auth.controller';
 import passport from 'passport';
@@ -16,7 +16,7 @@ const webRoutes = (app: Express) => {
     router.get('/product/:id', getProductDetail);
 
     //auth routes
-    router.get("/success-redirect", getSuccessRedirectPage);
+    router.get('/success-redirect', getSuccessRedirectPage);
     router.get('/login', getLoginPage);
     router.post('/login', passport.authenticate('local', {
         failureRedirect: '/login',
@@ -26,6 +26,8 @@ const webRoutes = (app: Express) => {
     router.get('/register', getRegisterPage);
     router.post('/register', postRegister);
     router.post('/logout', postLogout);
+
+    router.post('/add-product-to-cart/:id', postAddProductToCart);
 
     //admin routes
     router.get('/admin', getDashboardPage);
