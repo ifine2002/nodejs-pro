@@ -5,6 +5,7 @@ import { RegisterSchema, TRegisterSchema } from "src/validation/register.schema"
 const getLoginPage = (req: Request, res: Response) => {
     const { session } = req as any;
     const messages = session?.messages ?? [];
+    session.messages = [];
     return res.render('client/auth/login', { messages });
 }
 

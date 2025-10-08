@@ -27,17 +27,7 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
 
     if (cart) {
         //update
-        //cập nhật sum giỏ hàng
-        await prisma.cart.update({
-            where: {
-                id: cart.id
-            },
-            data: {
-                sum: {
-                    increment: quantity
-                }
-            }
-        })
+
         //cập nhật cart-detail
         //nếu chưa có, tạo mới. có rồi, cập nhaajtr quantity
         const currentCartDetail = await prisma.cartDetail.findFirst({
@@ -46,6 +36,20 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
                 cartId: cart.id
             }
         })
+
+        if (!currentCartDetail) {
+            //cập nhật sum giỏ hàng
+            await prisma.cart.update({
+                where: {
+                    id: cart.id
+                },
+                data: {
+                    sum: {
+                        increment: quantity
+                    }
+                }
+            })
+        }
 
         await prisma.cartDetail.upsert({
             where: {
@@ -101,4 +105,44 @@ const getProductInCart = async (userId: number) => {
     }
     return []
 }
-export { getAllProduct, getProductById, addProductToCart, getProductInCart }
+
+const deleteProductInCart = async (cartDetailId: number, userId: number, sumCart: number) => {
+    //xóa cart-detail
+    await prisma.cartDetail.delete({
+        where: {
+            id: cartDetailId
+        }
+    })
+
+    if (sumCart === 1) {
+        //xóa cart
+        await prisma.cart.delete({
+            where: {
+                userId: userId
+            }
+        })
+    } else {
+        await prisma.cart.update({
+            where: { userId },
+            data: {
+                sum: {
+                    decrement: 1
+                }
+            }
+        })
+    }
+}
+
+const updateCartDetailBeforeCheckout = async (data: { id: string; quantity: string }[]) => {
+    for (let i = 0; i < data.length; i++) {
+        await prisma.cartDetail.update({
+            where: { id: +(data[i].id) },
+            data: {
+                quantity: +(data[i].quantity)
+            }
+        })
+    }
+}
+
+
+export { getAllProduct, getProductById, addProductToCart, getProductInCart, deleteProductInCart, updateCartDetailBeforeCheckout }
