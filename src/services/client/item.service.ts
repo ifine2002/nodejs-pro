@@ -176,7 +176,7 @@ const handlerPlaceOrder = async (
                 receiverPhone: receiverPhone,
                 status: "PENDING",
                 paymentMethod: "COD",
-                paymentStatus: "PENDING",
+                paymentStatus: "PAYMENT_UNPAID",
                 userId: userId,
                 orderDetails: {
                     create: orderDetails
