@@ -200,4 +200,15 @@ const handlerPlaceOrder = async (
 }
 
 
-export { getAllProduct, getProductById, addProductToCart, getProductInCart, deleteProductInCart, updateCartDetailBeforeCheckout, handlerPlaceOrder }
+const getOrderHistory = async (userId: number) => {
+    return await prisma.order.findMany({
+        where: { userId },
+        include: {
+            orderDetails: {
+                include: { product: true }
+            }
+        }
+    })
+}
+
+export { getAllProduct, getProductById, addProductToCart, getProductInCart, deleteProductInCart, updateCartDetailBeforeCheckout, handlerPlaceOrder, getOrderHistory }

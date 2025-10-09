@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { addProductToCart, deleteProductInCart, getProductById, getProductInCart, handlerPlaceOrder, updateCartDetailBeforeCheckout } from 'services/client/item.service';
+import { addProductToCart, deleteProductInCart, getOrderHistory, getProductById, getProductInCart, handlerPlaceOrder, updateCartDetailBeforeCheckout } from 'services/client/item.service';
 
 const getProductDetail = async (req: Request, res: Response) => {
     const { id } = req.params
@@ -81,4 +81,17 @@ const postPlaceOrder = async (req: Request, res: Response) => {
     return res.redirect("/thanks");
 }
 
-export { getProductDetail, postAddProductToCart, getCartPage, postDeleteProductInCart, getCheckOutPage, postHandleCartToCheckOut, postPlaceOrder, getPlaceOrder };
+const getOrderHistoryPage = async (req: Request, res: Response) => {
+
+    const user = req.user;
+    if (!user) return res.redirect("/login");
+
+    const orders = await getOrderHistory(user.id)
+
+    return res.render("client/product/order.history.ejs", { orders });
+}
+
+export {
+    getProductDetail, postAddProductToCart, getCartPage, postDeleteProductInCart,
+    getCheckOutPage, postHandleCartToCheckOut, postPlaceOrder, getPlaceOrder, getOrderHistoryPage
+};
