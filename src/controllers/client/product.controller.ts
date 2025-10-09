@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { addProductToCart, deleteProductInCart, getProductById, getProductInCart, updateCartDetailBeforeCheckout } from 'services/client/item.service';
+import { addProductToCart, deleteProductInCart, getProductById, getProductInCart, handlerPlaceOrder, updateCartDetailBeforeCheckout } from 'services/client/item.service';
 
 const getProductDetail = async (req: Request, res: Response) => {
     const { id } = req.params
@@ -61,5 +61,24 @@ const postHandleCartToCheckOut = async (req: Request, res: Response) => {
     return res.redirect("/checkout");
 }
 
+const getPlaceOrder = async (req: Request, res: Response) => {
 
-export { getProductDetail, postAddProductToCart, getCartPage, postDeleteProductInCart, getCheckOutPage, postHandleCartToCheckOut };
+    const user = req.user;
+    if (!user) return res.redirect("/login");
+
+    return res.render("client/product/thanks");
+}
+
+const postPlaceOrder = async (req: Request, res: Response) => {
+
+    const user = req.user;
+    if (!user) return res.redirect("/login");
+
+    const { receiverName, receiverAddress, receiverPhone, totalPrice } = req.body;
+
+    await handlerPlaceOrder(receiverName, receiverAddress, receiverPhone, totalPrice, user.id);
+
+    return res.redirect("/thanks");
+}
+
+export { getProductDetail, postAddProductToCart, getCartPage, postDeleteProductInCart, getCheckOutPage, postHandleCartToCheckOut, postPlaceOrder, getPlaceOrder };
