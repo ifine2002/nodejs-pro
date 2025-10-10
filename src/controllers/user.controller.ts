@@ -1,12 +1,33 @@
 import { Request, Response } from 'express';
-import { getAllProduct } from 'services/client/item.service';
-import { getAllRoles, getAllUsers, getUserById, handleCreateUser, handleDeleteUser, updateUserById } from 'services/user.service';
+import { countTotalProductClientPage, getAllProduct } from 'services/client/item.service';
+import { getAllRoles, getUserById, handleCreateUser, handleDeleteUser, updateUserById } from 'services/user.service';
 
 const getHomePage = async (req: Request, res: Response) => {
-    const products = await getAllProduct();
-    const user = req.user;
-    console.log(">>> check user:", user)
-    return res.render('client/home/show', { products });
+    const { page } = req.query;
+    let currentPage = page ? +page : 1;
+    if (currentPage <= 0) currentPage = 1;
+
+    const products = await getAllProduct(currentPage, 8);
+    const totalPages = await countTotalProductClientPage(8);
+    return res.render('client/home/show', {
+        products,
+        totalPages: +totalPages,
+        page: +currentPage
+    });
+}
+
+const getProductFilterPage = async (req: Request, res: Response) => {
+    const { page } = req.query;
+    let currentPage = page ? +page : 1;
+    if (currentPage <= 0) currentPage = 1;
+
+    const products = await getAllProduct(currentPage, 6);
+    const totalPages = await countTotalProductClientPage(6);
+    return res.render('client/home/filter', {
+        products,
+        totalPages: +totalPages,
+        page: +currentPage
+    });
 }
 
 const getCreateUserPage = async (req: Request, res: Response) => {
@@ -51,4 +72,4 @@ const postUpdateUser = async (req: Request, res: Response) => {
     return res.redirect('/admin/user');
 }
 
-export { getHomePage, getCreateUserPage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser };
+export { getHomePage, getCreateUserPage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser, getProductFilterPage };

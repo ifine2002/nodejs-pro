@@ -1,5 +1,5 @@
 import express, { Express } from 'express';
-import { getCreateUserPage, getHomePage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser } from 'controllers/user.controller';
+import { getCreateUserPage, getHomePage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser, getProductFilterPage } from 'controllers/user.controller';
 import { getAdminOrderPage, getAdminProductPage, getAdminUserPage, getDashboardPage, getOrderDetailPage } from 'controllers/admin/dashboard.controller';
 import fileUploadMiddleware from 'src/middleware/multer';
 import { getCartPage, getCheckOutPage, getOrderHistoryPage, getPlaceOrder, getProductDetail, postAddProductToCart, postAddToCartFromDetailPage, postDeleteProductInCart, postHandleCartToCheckOut, postPlaceOrder } from 'controllers/client/product.controller';
@@ -14,6 +14,7 @@ const webRoutes = (app: Express) => {
     //client routes
     router.get('/', getHomePage);
     router.get('/product/:id', getProductDetail);
+    router.get('/products', getProductFilterPage);
 
     //auth routes
     router.get('/success-redirect', getSuccessRedirectPage);
