@@ -91,7 +91,18 @@ const getOrderHistoryPage = async (req: Request, res: Response) => {
     return res.render("client/product/order.history.ejs", { orders });
 }
 
+const postAddToCartFromDetailPage = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { quantity } = req.body;
+    const user = req.user;
+    if (!user) return res.redirect("/login");
+
+    await addProductToCart(+quantity, +id, user)
+
+    return res.redirect(`/product/${id}`);
+}
+
 export {
     getProductDetail, postAddProductToCart, getCartPage, postDeleteProductInCart,
-    getCheckOutPage, postHandleCartToCheckOut, postPlaceOrder, getPlaceOrder, getOrderHistoryPage
+    getCheckOutPage, postHandleCartToCheckOut, postPlaceOrder, getPlaceOrder, getOrderHistoryPage, postAddToCartFromDetailPage
 };

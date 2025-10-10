@@ -1,11 +1,13 @@
 import { prisma } from 'config/client';
 import { Request, Response } from 'express';
+import { getInfoDashboard } from 'services/admin/dashboard.service';
 import { getOrderAdmin, getOrderDetails } from 'services/admin/order.service';
 import { getAllProduct } from 'services/admin/product.service';
 import { getAllUsers } from 'services/user.service';
 
 const getDashboardPage = async (req: Request, res: Response) => {
-    return res.render('admin/dashboard/show');
+    const info = await getInfoDashboard();
+    return res.render('admin/dashboard/show', { info });
 }
 
 const getAdminUserPage = async (req: Request, res: Response) => {

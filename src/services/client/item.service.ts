@@ -27,9 +27,9 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
 
     if (cart) {
         //update
-
+        //sum = tổng số loại hàng hóa trong giỏ (không phải tổng số lượng hàng hóa)
         //cập nhật cart-detail
-        //nếu chưa có, tạo mới. có rồi, cập nhaajtr quantity
+        //nếu chưa có, tạo mới. có rồi, cập nhật quantity
         const currentCartDetail = await prisma.cartDetail.findFirst({
             where: {
                 productId: productId,
@@ -45,7 +45,7 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
                 },
                 data: {
                     sum: {
-                        increment: quantity
+                        increment: 1
                     }
                 }
             })
@@ -72,7 +72,7 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
         //create
         await prisma.cart.create({
             data: {
-                sum: quantity,
+                sum: 1,
                 userId: user.id,
                 cartDetails: {
                     create: [
