@@ -76,7 +76,10 @@ const postPlaceOrder = async (req: Request, res: Response) => {
 
     const { receiverName, receiverAddress, receiverPhone, totalPrice } = req.body;
 
-    await handlerPlaceOrder(receiverName, receiverAddress, receiverPhone, totalPrice, user.id);
+    const message = await handlerPlaceOrder(receiverName, receiverAddress, receiverPhone, totalPrice, user.id);
+
+    console.log(">>> message:", message);
+    if (message) return res.redirect('/checkout');
 
     return res.redirect("/thanks");
 }

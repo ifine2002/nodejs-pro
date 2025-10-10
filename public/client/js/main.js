@@ -219,5 +219,59 @@
         }).format(value)
     }
 
+    // Thêm handler mới cho sự kiện thay đổi input
+    $('.quantity input').on('input', function () {
+        const input = $(this);
+        let newVal = parseInt(input.val()) || 1; // Mặc định là 1 nếu giá trị không hợp lệ
+
+        // Đảm bảo giá trị tối thiểu là 1
+        if (newVal < 1) {
+            newVal = 1;
+            input.val(newVal);
+        }
+
+        //set form index
+        const index = input.attr("data-cart-detail-index");
+        const el = document.getElementById(`cartDetails[${index}]`);
+        $(el).val(newVal);
+
+        //set quantity for detail page
+        const elDetail = document.getElementById("quantityDetail");
+        if (elDetail) {
+            $(elDetail).val(newVal);
+        }
+
+        //lấy giá
+        const price = input.attr("data-cart-detail-price");
+        const id = input.attr("data-cart-detail-id");
+
+        const priceElement = $(`p[data-cart-detail-id='${id}']`);
+        if (priceElement) {
+            const newPrice = +price * newVal;
+            priceElement.text(formatCurrency(newPrice.toFixed(2)) + " đ");
+        }
+
+        //cập nhật tổng giá giỏ hàng
+        const totalPriceElement = $(`p[data-cart-total-price]`);
+
+        if (totalPriceElement && totalPriceElement.length) {
+            // Tính tổng mới bằng cách cộng tất cả các tổng sản phẩm riêng lẻ
+            let newTotal = 0;
+            $('.quantity input').each(function () {
+                const qty = parseInt($(this).val()) || 0;
+                const price = $(this).attr("data-cart-detail-price");
+                newTotal += qty * (+price);
+            });
+
+            //cập nhật
+            totalPriceElement.each(function (index, element) {
+                //cập nhật text
+                $(element).text(formatCurrency(newTotal.toFixed(2)) + " đ");
+                //cập nhật thuộc tính data
+                $(element).attr("data-cart-total-price", newTotal);
+            });
+        }
+    });
+
 })(jQuery);
 

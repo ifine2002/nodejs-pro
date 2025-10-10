@@ -1,9 +1,9 @@
 import { prisma } from 'config/client';
 import { Request, Response } from 'express';
 import { getInfoDashboard } from 'services/admin/dashboard.service';
-import { getOrderAdmin, getOrderDetails } from 'services/admin/order.service';
-import { getAllProduct } from 'services/admin/product.service';
-import { getAllUsers } from 'services/user.service';
+import { countTotalOrderPage, getOrderAdmin, getOrderDetails } from 'services/admin/order.service';
+import { countTotalProductPage, getAllProduct } from 'services/admin/product.service';
+import { countTotalUserPage, getAllUsers } from 'services/user.service';
 
 const getDashboardPage = async (req: Request, res: Response) => {
     const info = await getInfoDashboard();
@@ -11,24 +11,48 @@ const getDashboardPage = async (req: Request, res: Response) => {
 }
 
 const getAdminUserPage = async (req: Request, res: Response) => {
-    const users = await getAllUsers();
+    const { page } = req.query;
+
+    let currentPage = page ? +page : 1;
+    if (currentPage <= 0) currentPage = 1;
+
+    const users = await getAllUsers(currentPage);
+    const totalPages = await countTotalUserPage();
     return res.render('admin/user/show', {
-        users: users
+        users: users,
+        totalPages: +totalPages,
+        page: +currentPage
     });
 }
 
 const getAdminProductPage = async (req: Request, res: Response) => {
-    const products = await getAllProduct();
+    const { page } = req.query;
+
+    let currentPage = page ? +page : 1;
+    if (currentPage <= 0) currentPage = 1;
+
+    const products = await getAllProduct(currentPage);
+    const totalPages = await countTotalProductPage();
     return res.render('admin/product/show', {
-        products
+        products,
+        totalPages: +totalPages,
+        page: +currentPage
     });
 }
 
 const getAdminOrderPage = async (req: Request, res: Response) => {
+    const { page } = req.query;
 
-    const orders = await getOrderAdmin() ?? [];
+    let currentPage = page ? +page : 1;
+    if (currentPage <= 0) currentPage = 1;
 
-    return res.render('admin/order/show', { orders });
+    const orders = await getOrderAdmin(currentPage) ?? [];
+    const totalPages = await countTotalOrderPage();
+    return res.render('admin/order/show', {
+        orders,
+        totalPages: +totalPages,
+        page: +currentPage
+    });
 }
 
 const getOrderDetailPage = async (req: Request, res: Response) => {

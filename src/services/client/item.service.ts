@@ -151,52 +151,93 @@ const handlerPlaceOrder = async (
     totalPrice: number,
     userId: number) => {
 
-    const cart = await prisma.cart.findUnique({
-        where: {
-            userId
-        },
-        include: {
-            cartDetails: true
-        }
-    })
+    //tạo transaction
 
-    const orderDetails = cart?.cartDetails.map(item => ({
-        price: item.price,
-        quantity: item.quantity,
-        productId: item.productId
-    })) ?? []
+    try {
+        await prisma.$transaction(async (tx) => {
 
-    if (cart) {
-        //create order and order-detail
-        await prisma.order.create({
-            data: {
-                totalPrice: +totalPrice,
-                receiverAddress: receiverAddress,
-                receiverName: receiverName,
-                receiverPhone: receiverPhone,
-                status: "PENDING",
-                paymentMethod: "COD",
-                paymentStatus: "PAYMENT_UNPAID",
-                userId: userId,
-                orderDetails: {
-                    create: orderDetails
+            const cart = await tx.cart.findUnique({
+                where: {
+                    userId
+                },
+                include: {
+                    cartDetails: true
+                }
+            })
+
+            if (cart) {
+
+                const orderDetails = cart?.cartDetails.map(item => ({
+                    price: item.price,
+                    quantity: item.quantity,
+                    productId: item.productId
+                })) ?? []
+
+                //create order and order-detail
+                await tx.order.create({
+                    data: {
+                        totalPrice: +totalPrice,
+                        receiverAddress: receiverAddress,
+                        receiverName: receiverName,
+                        receiverPhone: receiverPhone,
+                        status: "PENDING",
+                        paymentMethod: "COD",
+                        paymentStatus: "PAYMENT_UNPAID",
+                        userId: userId,
+                        orderDetails: {
+                            create: orderDetails
+                        }
+                    }
+                })
+
+                //remove cart and cart-detail
+                await tx.cartDetail.deleteMany({
+                    where: {
+                        cartId: cart?.id
+                    }
+                })
+
+                await tx.cart.delete({
+                    where: {
+                        id: cart?.id
+                    }
+                })
+
+                // check product quantity > orderDetail.quantity
+                for (let i = 0; i < cart.cartDetails.length; i++) {
+                    const product = await tx.product.findUnique({
+                        where: {
+                            id: cart.cartDetails[i].productId
+                        }
+                    })
+
+                    if (!product || product.quantity < cart.cartDetails[i].quantity) {
+                        throw new Error(`Product ${product?.name} is out of stock`);
+                    }
+
+                    //update product quantity and produc sold
+
+                    await tx.product.update({
+                        where: {
+                            id: cart.cartDetails[i].productId
+                        },
+                        data: {
+                            quantity: {
+                                decrement: cart.cartDetails[i].quantity
+                            },
+                            sold: {
+                                increment: cart.cartDetails[i].quantity
+                            }
+                        }
+                    })
                 }
             }
         })
-
-        //remove cart and cart-detail
-        await prisma.cartDetail.deleteMany({
-            where: {
-                cartId: cart?.id
-            }
-        })
-
-        await prisma.cart.delete({
-            where: {
-                id: cart?.id
-            }
-        })
+        return '';
+    } catch (error) {
+        return error.message;
     }
+
 }
 
 
