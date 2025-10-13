@@ -5,6 +5,7 @@ import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
+import apiRoutes from 'routes/api';
 import webRoutes from 'routes/web';
 import configPassportLocal from 'src/middleware/passport.local';
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
@@ -56,6 +57,8 @@ app.use((req, res, next) => {
 
 //config routes
 webRoutes(app);
+
+apiRoutes(app);
 
 initDatabase();
 
