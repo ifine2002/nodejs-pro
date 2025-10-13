@@ -43,7 +43,6 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
 
     if (cart) {
         //update
-        //sum = tổng số loại hàng hóa trong giỏ (không phải tổng số lượng hàng hóa)
         //cập nhật cart-detail
         //nếu chưa có, tạo mới. có rồi, cập nhật quantity
         const currentCartDetail = await prisma.cartDetail.findFirst({
@@ -53,19 +52,17 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
             }
         })
 
-        if (!currentCartDetail) {
-            //cập nhật sum giỏ hàng
-            await prisma.cart.update({
-                where: {
-                    id: cart.id
-                },
-                data: {
-                    sum: {
-                        increment: 1
-                    }
+        //cập nhật sum giỏ hàng
+        await prisma.cart.update({
+            where: {
+                id: cart.id
+            },
+            data: {
+                sum: {
+                    increment: quantity
                 }
-            })
-        }
+            }
+        })
 
         await prisma.cartDetail.upsert({
             where: {
@@ -88,7 +85,7 @@ const addProductToCart = async (quantity: number, productId: number, user: Expre
         //create
         await prisma.cart.create({
             data: {
-                sum: 1,
+                sum: quantity,
                 userId: user.id,
                 cartDetails: {
                     create: [
@@ -123,14 +120,26 @@ const getProductInCart = async (userId: number) => {
 }
 
 const deleteProductInCart = async (cartDetailId: number, userId: number, sumCart: number) => {
-    //xóa cart-detail
-    await prisma.cartDetail.delete({
+
+
+    const cart = await prisma.cart.findUnique({
         where: {
-            id: cartDetailId
+            userId: userId
+        },
+        include: {
+            cartDetails: true
         }
     })
 
-    if (sumCart === 1) {
+    if (cart.cartDetails.length === 1) {
+        //xóa cart-detail
+
+        await prisma.cartDetail.delete({
+            where: {
+                id: cartDetailId
+            }
+        })
+
         //xóa cart
         await prisma.cart.delete({
             where: {
@@ -138,19 +147,48 @@ const deleteProductInCart = async (cartDetailId: number, userId: number, sumCart
             }
         })
     } else {
+        //xóa cart-detail
+        const productDelete = await prisma.cartDetail.delete({
+            where: {
+                id: cartDetailId
+            }
+        })
+
         await prisma.cart.update({
             where: { userId },
             data: {
                 sum: {
-                    decrement: 1
+                    decrement: productDelete.quantity
                 }
             }
         })
     }
+
+    // if (sumCart === 1) {
+    //     //xóa cart
+    //     await prisma.cart.delete({
+    //         where: {
+    //             userId: userId
+    //         }
+    //     })
+    // } else {
+    //     await prisma.cart.update({
+    //         where: { userId },
+    //         data: {
+    //             sum: {
+    //                 decrement: 1
+    //             }
+    //         }
+    //     })
+    // }
 }
 
-const updateCartDetailBeforeCheckout = async (data: { id: string; quantity: string }[]) => {
+const updateCartDetailBeforeCheckout = async (data: { id: string; quantity: string }[], cartId: string) => {
+
+    let quantity = 0;
+
     for (let i = 0; i < data.length; i++) {
+        quantity += +(data[i].quantity);
         await prisma.cartDetail.update({
             where: { id: +(data[i].id) },
             data: {
@@ -158,6 +196,14 @@ const updateCartDetailBeforeCheckout = async (data: { id: string; quantity: stri
             }
         })
     }
+
+    //update sum in cart
+    await prisma.cart.update({
+        where: { id: +cartId },
+        data: {
+            sum: quantity
+        }
+    })
 }
 
 const handlerPlaceOrder = async (
